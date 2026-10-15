@@ -27,7 +27,7 @@ def settings(tmp_path: Path) -> Settings:
         _env_file=None,
         environment="test",
         debug=True,
-        database_url=f"sqlite:///{tmp_path / 'test.db'}",
+        database_url=f"sqlite:///:memory:",
     )
 
 
