@@ -1,0 +1,34 @@
+# Dependências
+node_modules/
+.venv/
+
+# Build
+frontend/dist/
+backend/build/
+backend/dist/
+
+# Dados locais e variáveis de ambiente
+data/
+backend/data/
+*.db
+.env
+.env.*
+!.env.example
+
+# Caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editores e sistema
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
