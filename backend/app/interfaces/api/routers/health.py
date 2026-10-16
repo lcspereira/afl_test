@@ -16,11 +16,11 @@ router = APIRouter(tags=["saúde"])
     response_model=HealthResponse,
     summary="Verifica a saúde da aplicação",
 )
-def read_health(
+async def read_health(
     service: Annotated[HealthService, Depends(get_health_service)],
 ) -> HealthResponse:
     """Informa o estado geral da aplicação e do banco de dados."""
-    report = service.check()
+    report = await service.check()
     return HealthResponse(
         status=report.status,
         database=report.database_status,

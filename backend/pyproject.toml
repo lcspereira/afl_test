@@ -7,9 +7,14 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "aiosqlite>=0.22.1",
+    "alembic>=1.20.0",
+    "email-validator>=2.2",
     "fastapi>=0.143.2",
+    "pwdlib[argon2]>=0.2",
     "pydantic-settings>=2.16.0",
-    "sqlalchemy>=2.1.4",
+    "pyjwt>=2.10",
+    "sqlalchemy[asyncio]>=2.1.4",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -21,6 +26,7 @@ dev = [
     "factory-boy>=3.3.3",
     "httpx2>=2.13.1",
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
     "ruff>=0.17.1",
 ]
 
@@ -28,6 +34,7 @@ dev = [
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra --strict-markers --strict-config"
+asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 79

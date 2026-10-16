@@ -8,25 +8,29 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings, get_settings
 from app.infrastructure.database.session import (
-    create_db_engine,
-    create_session_factory,
+    create_async_db_engine,
+    create_async_session_factory,
     init_database,
 )
 from app.interfaces.api.error_handlers import register_exception_handlers
+from app.interfaces.api.routers.auth import router as auth_router
 from app.interfaces.api.routers.health import router as health_router
+from app.interfaces.api.routers.users import router as users_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Monta a aplicação com banco de dados, middlewares e rotas."""
     settings = settings or get_settings()
-    engine = create_db_engine(settings.database_url)
-    session_factory = create_session_factory(engine)
+    engine = create_async_db_engine(settings.database_url)
+    session_factory = create_async_session_factory(engine)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-        init_database(engine)
-        yield
-        engine.dispose()
+        await init_database(engine)
+        try:
+            yield
+        finally:
+            await engine.dispose()
 
     app = FastAPI(
         title=settings.app_name,
@@ -44,7 +48,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
     register_exception_handlers(app)
+    app.include_router(auth_router, prefix=settings.api_prefix)
     app.include_router(health_router, prefix=settings.api_prefix)
+    app.include_router(users_router, prefix=settings.api_prefix)
     return app
 
 

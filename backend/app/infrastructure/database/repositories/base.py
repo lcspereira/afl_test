@@ -1,7 +1,7 @@
 """Repositório genérico baseado em SQLAlchemy."""
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.repositories import Repository
 from app.infrastructure.database.base import Base
@@ -15,17 +15,18 @@ class SqlAlchemyRepository[ModelT: Base](Repository[ModelT]):
 
     model: type[ModelT]
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def get_by_id(self, entity_id: int) -> ModelT | None:
-        return self._session.get(self.model, entity_id)
+    async def get_by_id(self, entity_id: int) -> ModelT | None:
+        return await self._session.get(self.model, entity_id)
 
-    def list_all(self) -> list[ModelT]:
-        return list(self._session.scalars(select(self.model)).all())
+    async def list_all(self) -> list[ModelT]:
+        records = await self._session.scalars(select(self.model))
+        return list(records.all())
 
-    def add(self, entity: ModelT) -> None:
+    async def add(self, entity: ModelT) -> None:
         self._session.add(entity)
 
-    def remove(self, entity: ModelT) -> None:
-        self._session.delete(entity)
+    async def remove(self, entity: ModelT) -> None:
+        await self._session.delete(entity)

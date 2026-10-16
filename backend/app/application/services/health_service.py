@@ -28,8 +28,8 @@ class HealthService:
     def __init__(self, database_probe: DatabaseProbe) -> None:
         self._database_probe = database_probe
 
-    def check(self) -> HealthReport:
+    async def check(self) -> HealthReport:
         """Executa as verificações e consolida o resultado."""
         return HealthReport(
-            database_available=self._database_probe.is_available(),
+            database_available=await self._database_probe.is_available(),
         )
