@@ -78,6 +78,38 @@ npm run dev
 
 O frontend fica disponível em `http://localhost:5173`.
 
+### Migrações do banco de dados
+
+No diretório `backend/`, use Alembic para criar e aplicar migrações:
+
+```bash
+uv run alembic revision --autogenerate -m "descricao"
+uv run alembic upgrade head
+```
+
+As migrações usam `DATABASE_URL` das configurações do backend. Revise cada
+migração gerada antes de aplicá-la.
+
+### Autenticação
+
+O backend oferece `POST /api/v1/auth/register` para cadastro,
+`POST /api/v1/auth/token` para obter um par de tokens e
+`POST /api/v1/auth/refresh` para trocar um refresh token por um novo par.
+Refresh tokens são rotacionados e podem ser usados uma única vez. A rota
+`GET /api/v1/users/me` exige o access token em
+`Authorization: Bearer <access_token>`.
+
+Configure `JWT_SECRET_KEY` com pelo menos 32 caracteres aleatórios e ajuste
+`JWT_ACCESS_TOKEN_EXPIRE_MINUTES` ou `JWT_REFRESH_TOKEN_EXPIRE_DAYS` se
+necessário. Para gerar uma chave local:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+O segredo de desenvolvimento embutido não pode ser usado quando
+`ENVIRONMENT=production`; o Compose exige `JWT_SECRET_KEY` no `.env` raiz.
+
 ### Com Docker
 
 ```bash
@@ -100,6 +132,9 @@ As variáveis do backend são lidas de ambiente ou do arquivo `backend/.env`. Ve
 | `DEBUG` | `false` | Modo de depuração |
 | `API_PREFIX` | `/api/v1` | Prefixo das rotas da API |
 | `DATABASE_URL` | `sqlite:///./data/app.db` | URL de conexão SQLAlchemy |
+| `JWT_SECRET_KEY` | segredo local de desenvolvimento | Chave de assinatura dos tokens; obrigatória em produção |
+| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Duração do token de acesso |
+| `JWT_REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Duração do refresh token |
 | `CORS_ORIGINS` | `["http://localhost:3000","http://localhost:5173"]` | Origens permitidas (lista JSON) |
 | `VITE_API_URL` | `http://localhost:8000/api/v1` | URL da API usada pelo frontend (definida no build) |
 
