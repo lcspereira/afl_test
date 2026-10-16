@@ -3,13 +3,9 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import type { ReactNode } from 'react'
+import { Outlet } from 'react-router-dom'
 
-interface AppLayoutProps {
-  children: ReactNode
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <AppBar position="static">
@@ -20,7 +16,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </Toolbar>
       </AppBar>
       <Container maxWidth="md" sx={{ py: 4 }}>
-        {children}
+        <Outlet />
       </Container>
     </Box>
   )
