@@ -7,3 +7,9 @@ from app.infrastructure.database.models.refresh_token import (  # noqa: F401
     RefreshTokenRecord,
 )
 from app.infrastructure.database.models.user import UserRecord  # noqa: F401
+
+from app.infrastructure.database.models.task import ( # noqa: F401
+    TaskRecord,
+    Status
+) 
+

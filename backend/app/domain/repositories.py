@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Protocol
+from app.domain.task import Task
 
 from app.domain.user import User
 
@@ -66,3 +67,22 @@ class RefreshTokenRepository(Protocol):
 
     async def revoke_by_user(self, user_id: int) -> None:
         """Revoga todos os refresh tokens de um usuário."""
+
+
+class TaskRepository(Protocol):
+    """Contrato de persistência específico para tarefas."""
+
+    async def get_by_id(self, task_id: int) -> Task | None:
+        """Retorna uma tarefa pelo identificador."""
+
+    async def list_by_user_id(self, user_id: int) -> list[Task]:
+        """Retorna todas as tarefas associadas a um usuário específico."""
+
+    async def add(self, task: Task) -> Task:
+        """Persiste e retorna uma tarefa recém-criada."""
+
+    async def remove(self, task: Task) -> None:
+        """Marca a tarefa para remoção."""
+
+    async def update(self, task: Task) -> Task:
+        """Atualiza e retorna a tarefa persistida."""

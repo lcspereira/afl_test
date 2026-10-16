@@ -69,3 +69,19 @@ def register_exception_handlers(app: FastAPI) -> None:
         exc: DomainError,
     ) -> JSONResponse:
         return JSONResponse(status_code=400, content={"detail": str(exc)})
+
+
+    @app.exception_handler(ValueError)
+    async def handle_value_error(
+        _: Request,
+        exc: ValueError,
+    ) -> JSONResponse:
+        return JSONResponse(status_code=400, content={"detail": str(exc)})
+
+
+    @app.exception_handler(PermissionError)
+    async def handle_permission_error(
+        _: Request,
+        exc: PermissionError,
+    ) -> JSONResponse:
+        return JSONResponse(status_code=403, content={"detail": str(exc)})

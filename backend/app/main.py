@@ -16,6 +16,7 @@ from app.interfaces.api.error_handlers import register_exception_handlers
 from app.interfaces.api.routers.auth import router as auth_router
 from app.interfaces.api.routers.health import router as health_router
 from app.interfaces.api.routers.users import router as users_router
+from app.interfaces.api.routers.tasks import router as tasks_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -51,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router, prefix=settings.api_prefix)
     app.include_router(health_router, prefix=settings.api_prefix)
     app.include_router(users_router, prefix=settings.api_prefix)
+    app.include_router(tasks_router, prefix=settings.api_prefix)
     return app
 
 
