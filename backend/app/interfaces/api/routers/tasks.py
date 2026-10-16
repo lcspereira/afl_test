@@ -35,6 +35,7 @@ async def create_task(
     service: Annotated[TaskService, Depends(get_task_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Cria uma nova tarefa para o usuário atual."""
     task = await service.create_task(
         titulo=task.titulo,
         descricao=task.descricao,
@@ -51,6 +52,7 @@ async def update_task(
     service: Annotated[TaskService, Depends(get_task_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Atualiza uma tarefa existente do usuário atual."""
     task = await service.update_task(
         task_id=task_id,
         titulo=task.titulo,
@@ -67,6 +69,7 @@ async def delete_task(
     service: Annotated[TaskService, Depends(get_task_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Exclui uma tarefa existente do usuário atual."""
     task = await service.delete_task(
         task_id=task_id,
         id_usuario=current_user.id,
@@ -79,6 +82,7 @@ async def list_tasks(
     service: Annotated[TaskService, Depends(get_task_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Lista todas as tarefas do usuário atual."""
     tasks = await service.list_tasks_by_user(id_usuario=current_user.id)
     return [_task_response(task) for task in tasks]
 
@@ -89,6 +93,7 @@ async def get_task(
     service: Annotated[TaskService, Depends(get_task_service)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Obtém uma tarefa específica do usuário atual."""
     task = await service.get_task(
         task_id=task_id,
         id_usuario=current_user.id,
