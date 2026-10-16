@@ -24,6 +24,8 @@ Run frontend commands from `frontend/`: `npm run dev`, `npm run build`, and
 
 - Backend dependencies point inward: `interfaces` → `application` → `domain`;
   `infrastructure` implements persistence and external adapters.
+- Use SQLAlchemy `AsyncSession` for API database access and async endpoint,
+  service, and repository methods.
 - Import ORM models in `backend/app/infrastructure/database/models/` so
   `Base.metadata` and Alembic autogeneration discover them. Review generated
   migrations before applying them.

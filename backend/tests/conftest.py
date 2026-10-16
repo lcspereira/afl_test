@@ -1,53 +1,42 @@
-"""Fixtures compartilhadas pelos testes.
+"""Fixtures compartilhadas pelos testes."""
 
-Este arquivo contém apenas fixtures. Os testes são escritos pela equipe.
-"""
-
-from collections.abc import Iterator
-from pathlib import Path
+from collections.abc import AsyncIterator, Iterator
 
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.infrastructure.database.session import (
-    create_db_engine,
-    create_session_factory,
+    create_async_db_engine,
+    create_async_session_factory,
     init_database,
 )
 from app.main import create_app
-from tests.factories.base import bind_session
 
 
 @pytest.fixture
-def settings(tmp_path: Path) -> Settings:
+def settings() -> Settings:
     """Configurações isoladas, com banco SQLite temporário por teste."""
     return Settings(
         _env_file=None,
         environment="test",
         debug=True,
-        database_url=f"sqlite:///:memory:",
+        database_url="sqlite:///:memory:",
     )
 
 
-@pytest.fixture
-def db_session(settings: Settings) -> Iterator[Session]:
-    """Sessão SQLAlchemy apontando para o banco temporário."""
-    engine = create_db_engine(settings.database_url)
-    init_database(engine)
-    session = create_session_factory(engine)()
+@pytest_asyncio.fixture
+async def db_session(settings: Settings) -> AsyncIterator[AsyncSession]:
+    """Sessão assíncrona SQLAlchemy apontando para banco temporário."""
+    engine = create_async_db_engine(settings.database_url)
+    await init_database(engine)
     try:
-        yield session
+        async with create_async_session_factory(engine)() as session:
+            yield session
     finally:
-        session.close()
-        engine.dispose()
-
-
-@pytest.fixture(autouse=True)
-def _bind_factories_session(db_session: Session) -> None:
-    """Vincula as fábricas factory_boy à sessão de teste."""
-    bind_session(db_session)
+        await engine.dispose()
 
 
 @pytest.fixture

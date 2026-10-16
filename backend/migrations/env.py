@@ -1,11 +1,13 @@
+import asyncio
 from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy.engine import Connection
 
 from app.core.config import get_settings
 from app.infrastructure.database import models  # noqa: F401
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.session import create_db_engine
+from app.infrastructure.database.session import create_async_db_engine
 
 config = context.config
 
@@ -28,19 +30,26 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    engine = create_db_engine(settings.database_url)
-    try:
-        with engine.connect() as connection:
-            context.configure(
-                connection=connection,
-                target_metadata=target_metadata,
-            )
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+    )
+    with context.begin_transaction():
+        context.run_migrations()
 
-            with context.begin_transaction():
-                context.run_migrations()
+
+async def run_async_migrations() -> None:
+    engine = create_async_db_engine(settings.database_url)
+    try:
+        async with engine.connect() as connection:
+            await connection.run_sync(do_run_migrations)
     finally:
-        engine.dispose()
+        await engine.dispose()
+
+
+def run_migrations_online() -> None:
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():

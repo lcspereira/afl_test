@@ -38,9 +38,9 @@ root.
   `domain` owns framework-independent contracts and exceptions, and
   `infrastructure` implements persistence and other external adapters.
 - `backend/app/main.py:create_app` is the composition root. It accepts settings,
-  creates the SQLAlchemy engine and session factory, stores the factory on app
-  state, initializes the database in the lifespan, and registers middleware,
-  exception handlers, and routers.
+  creates the async SQLAlchemy engine and session factory, stores the factory
+  on app state, initializes the database in the async lifespan, and registers
+  middleware, exception handlers, and routers.
 - Alembic configuration lives in `backend/alembic.ini` and migration scripts in
   `backend/migrations/`. Its environment reads the database URL from backend
   settings and uses `Base.metadata`; import new ORM models in the database
@@ -50,9 +50,9 @@ root.
   tokens are persisted and rotated once at `/auth/refresh`. Keep password
   hashes out of API responses; protected routes use bearer tokens, and
   production must use a unique `JWT_SECRET_KEY`.
-- API dependencies construct application services from request-scoped database
-  sessions. Routers validate and serialize through Pydantic schemas; keep
-  persistence details out of the service and domain layers.
+- API dependencies construct application services from request-scoped
+  `AsyncSession` instances. Routers and database-backed services are async;
+  keep persistence details out of the service and domain layers.
 - The frontend flows from `App.tsx` and page/components to services. Services
   use the shared `getJson` client, and API contracts live in `src/types/`.
   Endpoint paths passed to the client are relative to the configured API URL;

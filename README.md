@@ -4,7 +4,7 @@ Esqueleto de aplicação com backend em FastAPI e frontend em React com Material
 
 ## Tecnologias
 
-- **Backend:** FastAPI, SQLAlchemy, SQLite, pydantic-settings, uv
+- **Backend:** FastAPI, SQLAlchemy async, SQLite (`aiosqlite`), pydantic-settings, uv
 - **Testes:** pytest, factory_boy, httpx2
 - **Frontend:** React, TypeScript, Vite, Material UI
 - **Infraestrutura:** Docker, docker-compose
@@ -49,7 +49,7 @@ As dependências apontam sempre para dentro (`interfaces` → `application` → 
 |---|---|
 | `domain` | Regras de negócio puras, exceções de domínio e interfaces de repositório. Não importa FastAPI nem SQLAlchemy. |
 | `application` | Serviços (`services/`) que orquestram os casos de uso e portas (`ports.py`) que descrevem dependências externas. |
-| `infrastructure` | Implementações concretas: engine e sessão do SQLAlchemy, modelos, repositórios e probes. |
+| `infrastructure` | Implementações concretas: engine e sessões assíncronas do SQLAlchemy, modelos, repositórios e probes. |
 | `interfaces` | Adaptação HTTP: routers, schemas Pydantic, injeção de dependências e mapeamento de erros de domínio para respostas HTTP. |
 
 A composição acontece em `app/main.py`, na função `create_app`, que recebe as configurações e monta banco, middlewares, tratadores de erro e rotas.
