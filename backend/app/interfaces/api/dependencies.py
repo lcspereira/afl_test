@@ -16,12 +16,16 @@ from sqlalchemy.ext.asyncio import (
 
 from app.application.services.auth_service import AuthService
 from app.application.services.health_service import HealthService
+from app.application.services.task_service import TaskService
 from app.core.config import Settings
 from app.domain.exceptions import InvalidAccessTokenError
 from app.domain.user import User
 from app.infrastructure.database.probe import SqlAlchemyDatabaseProbe
 from app.infrastructure.database.repositories.refresh_token import (
     SqlAlchemyRefreshTokenRepository,
+)
+from app.infrastructure.database.repositories.task import (
+    SqlAlchemyTaskRepository,
 )
 from app.infrastructure.database.repositories.user import (
     SqlAlchemyUserRepository,
@@ -54,6 +58,13 @@ def get_health_service(
 ) -> HealthService:
     """Monta o serviço de saúde com o probe baseado na sessão atual."""
     return HealthService(SqlAlchemyDatabaseProbe(session))
+
+
+def get_task_service(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TaskService:
+    """Monta o serviço de tarefas com o repositório da sessão atual."""
+    return TaskService(SqlAlchemyTaskRepository(session))
 
 
 @lru_cache

@@ -1,3 +1,4 @@
+import factory
 from pwdlib import PasswordHash
 
 from app.infrastructure.database.models.user import UserRecord
@@ -8,6 +9,7 @@ class UserFactory(BaseFactory):
     class Meta:
         model = UserRecord
 
-    username = "testuser"
-    email = "testuser@example.com"
-    password_hash = PasswordHash.recommended().hash("password")
+    id = factory.Sequence(lambda n: n)
+    username = factory.Faker("user_name")
+    email = factory.Faker("email")
+    password_hash = factory.LazyFunction(lambda: PasswordHash.recommended().hash("password"))

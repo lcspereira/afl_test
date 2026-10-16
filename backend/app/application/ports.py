@@ -40,3 +40,23 @@ class TokenService(Protocol):
 
     def read_refresh_token(self, token: str) -> RefreshTokenClaims:
         """Valida um refresh token e retorna suas claims."""
+
+
+class TaskCrud(Protocol):
+    """Contrato para operações de persistência de tarefas."""
+
+    async def create_task(self, titulo: str, descricao: str, id_usuario: int) -> int:
+        """Cria uma nova tarefa e retorna seu identificador."""
+
+    async def get_task(self, task_id: int, id_usuario: int) -> dict:
+        """Retorna os dados de uma tarefa pelo seu identificador."""
+
+    async def update_task(self, task_id: int, titulo: str, descricao: str, status: str, id_usuario: int) -> None:
+        """Atualiza os dados de uma tarefa existente."""
+
+    async def delete_task(self, task_id: int, id_usuario: int) -> None:
+        """Remove uma tarefa pelo seu identificador."""
+
+    async def list_tasks(self, id_usuario: int) -> list[dict]:
+        """Retorna a lista de todas as tarefas de um usuário específico."""
+
