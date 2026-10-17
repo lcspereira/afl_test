@@ -47,6 +47,7 @@ function requestHeaders(jsonBody = false): Record<string, string> {
 export async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     headers: requestHeaders(),
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -64,6 +65,7 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
     method: 'POST',
     headers: requestHeaders(true),
     body: JSON.stringify(body),
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -84,6 +86,7 @@ export async function postNoContent(
     method: 'POST',
     headers: requestHeaders(true),
     body: JSON.stringify(body),
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -99,6 +102,7 @@ export async function putJson<T>(path: string, body: unknown): Promise<T> {
     method: 'PUT',
     headers: requestHeaders(true),
     body: JSON.stringify(body),
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -115,6 +119,7 @@ export async function deleteJson<T>(path: string): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     method: 'DELETE',
     headers: requestHeaders(),
+    credentials: 'include',
   })
 
   if (!response.ok) {

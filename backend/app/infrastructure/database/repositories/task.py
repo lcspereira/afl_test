@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timezone
 from sqlalchemy.future import select
 
 from app.domain.task import Task
@@ -11,6 +14,7 @@ class SqlAlchemyTaskRepository:
         self._session = session
 
     async def add(self, task: TaskRecord) -> TaskRecord:
+        task.data_criacao = datetime.now(timezone.utc)
         self._session.add(task)
         await self._session.commit()
         await self._session.refresh(task)
