@@ -1,21 +1,26 @@
 // Componente responsável por renderizar o formulário de login do usuário.
 import React, { useState } from "react"
-import { Box, Button, Link, TextField } from "@mui/material"
+import { Alert, Box, Button, Link, TextField } from "@mui/material"
 import type { LoginRequest } from "@/types/auth"
 import { login } from "@/services/authtenticationService"
+import { useNavigate } from "react-router-dom"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    setError(null)
     const request: LoginRequest = { email, password }
     try {
-      const response = await login(request)
-      console.log("Login successful:", response)
+      await login(request)
+      navigate('/')
     } catch (error) {
       console.error("Login failed:", error)
+      setError('Não foi possível entrar. Verifique seu e-mail e senha.')
     }
   }
 
@@ -25,6 +30,7 @@ export default function LoginForm() {
       onSubmit={handleSubmit}
       sx={{ display: "flex", flexDirection: "column", gap: 2 }}
     >
+      {error && <Alert severity="error">{error}</Alert>}
       <TextField
         type="email"
         id="email"

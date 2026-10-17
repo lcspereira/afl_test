@@ -1,16 +1,37 @@
 // Serviço responsável por lidar com a autenticação do usuário.
 
-import type { AuthResponse, LoginRequest, RegisterRequest } from "@/types/auth"
-import { postJson } from './apiClient'
+import type {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  UserResponse,
+} from '@/types/auth'
+import {
+  clearAccessToken,
+  getJson,
+  postJson,
+  postNoContent,
+  setAccessToken,
+} from './apiClient'
 
-export function login(request: LoginRequest): Promise<AuthResponse> {
-  return postJson("/auth/token", request)
+export async function login(request: LoginRequest): Promise<AuthResponse> {
+  const response = await postJson<AuthResponse>('/auth/token', request)
+  setAccessToken(response.access_token)
+  return response
 }
 
-export function register(request: RegisterRequest): Promise<AuthResponse> {
-  return postJson("/auth/register", request)
+export function register(request: RegisterRequest): Promise<UserResponse> {
+  return postJson<UserResponse>('/auth/register', request)
 }
 
-export function logout(): Promise<void> {
-  return postJson("/auth/logout", {})
+export function getCurrentUser(): Promise<UserResponse> {
+  return getJson<UserResponse>('/users/me')
+}
+
+export async function logout(): Promise<void> {
+  try {
+    await postNoContent('/auth/logout', {})
+  } finally {
+    clearAccessToken()
+  }
 }
