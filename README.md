@@ -9,6 +9,15 @@ Esqueleto de aplicação com backend em FastAPI e frontend em React com Material
 - **Frontend:** React, TypeScript, Vite, Material UI
 - **Infraestrutura:** Docker, docker-compose
 
+
+## Técnicas utilizadas
+
+- Arquitetura clean / Hexagonal
+- princípios SOLID
+- Domain-driven design
+- Test-driven development
+- Padrões de projeto: Factory, Injeção de dependências, Repositório, Memoização, Composição
+
 ## Estrutura do repositório
 
 ```
