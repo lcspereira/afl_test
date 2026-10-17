@@ -4,10 +4,6 @@ from collections.abc import AsyncIterator
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import (
-    HTTPAuthorizationCredentials,
-    HTTPBearer,
-)
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -23,9 +19,6 @@ from app.bootstrap import (
 from app.domain.exceptions import InvalidAccessTokenError
 from app.domain.user import User
 from app.infrastructure.database.probe import SqlAlchemyDatabaseProbe
-
-_bearer_scheme = HTTPBearer(auto_error=False)
-
 
 def get_session_factory(
     request: Request,
@@ -68,23 +61,21 @@ def get_auth_service(
 
 
 async def get_current_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None,
-        Depends(_bearer_scheme),
-    ],
+    request: Request,
     service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> User:
-    """Valida o bearer token e retorna o usuário ativo correspondente."""
+    """Valida o token do cookie e retorna o usuário ativo correspondente."""
     unauthorized = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Autenticação necessária.",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if credentials is None or credentials.scheme.lower() != "bearer":
+    access_token = request.cookies.get("access_token")
+    if access_token is None:
         raise unauthorized
 
     try:
-        user = await service.user_from_access_token(credentials.credentials)
+        user = await service.user_from_access_token(access_token)
     except InvalidAccessTokenError as exc:
         raise unauthorized from exc
     if user is None:
