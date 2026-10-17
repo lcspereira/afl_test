@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     debug: bool = False
     api_prefix: str = "/api/v1"
     database_url: str = "sqlite:///./data/app.db"
+    mcp_host: str = "127.0.0.1"
+    mcp_port: int = Field(default=8001, gt=0, le=65535)
     jwt_secret_key: SecretStr = SecretStr(DEVELOPMENT_JWT_SECRET)
     jwt_access_token_expire_minutes: int = Field(
         default=30,

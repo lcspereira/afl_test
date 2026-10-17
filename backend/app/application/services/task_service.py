@@ -56,7 +56,7 @@ class TaskService:
             ValueError: Se a tarefa não for encontrada ou não pertencer
                 ao usuário.
         """
-        task = await self._tasks.get(task_id)
+        task = await self._tasks.get_by_id(task_id)
         if not task or task.id_usuario != id_usuario:
             raise ValueError("Tarefa não encontrada")
         return task
@@ -64,9 +64,9 @@ class TaskService:
     async def update_task(
         self,
         task_id: int,
-        titulo: str,
-        descricao: str,
-        status: Status,
+        titulo: str | None,
+        descricao: str | None,
+        status: Status | None,
         id_usuario: int,
     ) -> TaskRecord:
         """Atualiza uma tarefa existente para o usuário especificado.
@@ -94,7 +94,7 @@ class TaskService:
         if status is not None and status not in Status:
             raise ValueError("Status inválido")
 
-        current_task = await self._tasks.get(task_id)
+        current_task = await self._tasks.get_by_id(task_id)
         if not current_task:
             raise ValueError("Tarefa não encontrada")
         if current_task.id_usuario != id_usuario:
@@ -125,14 +125,14 @@ class TaskService:
             PermissionError: Se o usuário não estiver autorizado a deletar
                 a tarefa.
         """
-        task = await self._tasks.get(task_id)
+        task = await self._tasks.get_by_id(task_id)
         if not task:
             raise ValueError("Tarefa não encontrada")
 
         if task.id_usuario != id_usuario:
             raise PermissionError("Não autorizado a deletar esta tarefa")
 
-        await self._tasks.delete(task.id)
+        await self._tasks.remove(task.id)
         return task
 
     async def list_tasks_by_user(self, id_usuario: int) -> list[TaskRecord]:
