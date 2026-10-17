@@ -50,7 +50,7 @@ As dependências apontam sempre para dentro (`interfaces` → `application` → 
 | `domain` | Regras de negócio puras, exceções de domínio e interfaces de repositório. Não importa FastAPI nem SQLAlchemy. |
 | `application` | Serviços (`services/`) que orquestram os casos de uso e portas (`ports.py`) que descrevem dependências externas. |
 | `infrastructure` | Implementações concretas: engine e sessões assíncronas do SQLAlchemy, modelos, repositórios e probes. |
-| `interfaces` | Adaptação HTTP: routers, schemas Pydantic, injeção de dependências e mapeamento de erros de domínio para respostas HTTP. |
+| `interfaces` | Adaptadores HTTP e MCP: routers, schemas Pydantic, injeção de dependências e ferramentas MCP. |
 
 A composição acontece em `app/main.py`, na função `create_app`, que recebe as configurações e monta banco, middlewares, tratadores de erro e rotas.
 
@@ -110,6 +110,21 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 O segredo de desenvolvimento embutido não pode ser usado quando
 `ENVIRONMENT=production`; o Compose exige `JWT_SECRET_KEY` no `.env` raiz.
 
+### Servidor MCP
+
+No diretório `backend/`, inicie o servidor MCP:
+
+```bash
+uv run python -m app.main_mcp
+```
+
+O servidor usa Streamable HTTP em `http://127.0.0.1:8001/mcp`. Configure o
+cliente MCP para enviar o access token obtido no login como
+`Authorization: Bearer <access_token>`. O servidor valida o token e o usuário
+ativo no banco; refresh tokens e o segredo `JWT_SECRET_KEY` não são tokens de
+autenticação MCP. As ferramentas de tarefas usam automaticamente o usuário
+autenticado.
+
 ### Com Docker
 
 ```bash
@@ -118,8 +133,10 @@ docker compose up --build
 
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:8000`
+- MCP (Streamable HTTP): `http://127.0.0.1:8001/mcp`
 
-O banco SQLite fica em um volume nomeado (`backend-data`), preservado entre reinicializações.
+O servidor MCP compartilha o volume SQLite e o segredo JWT do backend. O banco
+fica em um volume nomeado (`backend-data`), preservado entre reinicializações.
 
 ## Variáveis de ambiente
 
@@ -132,6 +149,8 @@ As variáveis do backend são lidas de ambiente ou do arquivo `backend/.env`. Ve
 | `DEBUG` | `false` | Modo de depuração |
 | `API_PREFIX` | `/api/v1` | Prefixo das rotas da API |
 | `DATABASE_URL` | `sqlite:///./data/app.db` | URL de conexão SQLAlchemy |
+| `MCP_HOST` | `127.0.0.1` | Endereço local de escuta do servidor MCP |
+| `MCP_PORT` | `8001` | Porta do servidor MCP |
 | `JWT_SECRET_KEY` | segredo local de desenvolvimento | Chave de assinatura dos tokens; obrigatória em produção |
 | `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Duração do token de acesso |
 | `JWT_REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Duração do refresh token |

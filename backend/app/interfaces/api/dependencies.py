@@ -1,7 +1,6 @@
 """Injeção de dependências dos endpoints (composição das camadas)."""
 
 from collections.abc import AsyncIterator
-from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
@@ -17,20 +16,13 @@ from sqlalchemy.ext.asyncio import (
 from app.application.services.auth_service import AuthService
 from app.application.services.health_service import HealthService
 from app.application.services.task_service import TaskService
-from app.core.config import Settings
+from app.bootstrap import (
+    build_auth_service,
+    build_task_service,
+)
 from app.domain.exceptions import InvalidAccessTokenError
 from app.domain.user import User
 from app.infrastructure.database.probe import SqlAlchemyDatabaseProbe
-from app.infrastructure.database.repositories.refresh_token import (
-    SqlAlchemyRefreshTokenRepository,
-)
-from app.infrastructure.database.repositories.task import (
-    SqlAlchemyTaskRepository,
-)
-from app.infrastructure.database.repositories.user import (
-    SqlAlchemyUserRepository,
-)
-from app.infrastructure.security import Argon2PasswordHasher, JwtTokenService
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -64,13 +56,7 @@ def get_task_service(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> TaskService:
     """Monta o serviço de tarefas com o repositório da sessão atual."""
-    return TaskService(SqlAlchemyTaskRepository(session))
-
-
-@lru_cache
-def get_password_hasher() -> Argon2PasswordHasher:
-    """Compartilha o hasher e seu hash dummy entre requisições."""
-    return Argon2PasswordHasher()
+    return build_task_service(session)
 
 
 def get_auth_service(
@@ -78,13 +64,7 @@ def get_auth_service(
     request: Request,
 ) -> AuthService:
     """Monta o serviço de autenticação com dependências concretas."""
-    settings: Settings = request.app.state.settings
-    return AuthService(
-        users=SqlAlchemyUserRepository(session),
-        refresh_tokens=SqlAlchemyRefreshTokenRepository(session),
-        password_hasher=get_password_hasher(),
-        token_service=JwtTokenService(settings),
-    )
+    return build_auth_service(session, request.app.state.settings)
 
 
 async def get_current_user(

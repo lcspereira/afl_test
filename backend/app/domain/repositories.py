@@ -27,6 +27,10 @@ class Repository[EntityT](ABC):
     async def remove(self, entity: EntityT) -> None:
         """Marca a entidade para remoção."""
 
+    @abstractmethod
+    async def update(self, entity: EntityT) -> None:
+        """Atualiza a entidade persistida."""
+
 
 class UserRepository(Protocol):
     """Contrato de persistência específico para usuários."""
@@ -74,6 +78,9 @@ class TaskRepository(Protocol):
 
     async def get_by_id(self, task_id: int) -> Task | None:
         """Retorna uma tarefa pelo identificador."""
+
+    async def list_all(self) -> list[Task]:
+        """Retorna todas as tarefas persistidas."""
 
     async def list_by_user_id(self, user_id: int) -> list[Task]:
         """Retorna todas as tarefas associadas a um usuário específico."""
