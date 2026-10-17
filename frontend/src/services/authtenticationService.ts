@@ -11,12 +11,11 @@ import {
   getJson,
   postJson,
   postNoContent,
-  setAccessToken,
 } from './apiClient'
 
 export async function login(request: LoginRequest): Promise<AuthResponse> {
   const response = await postJson<AuthResponse>('/auth/token', request)
-  setAccessToken(response.access_token)
+  // setAccessToken(response.access_token)
   return response
 }
 
