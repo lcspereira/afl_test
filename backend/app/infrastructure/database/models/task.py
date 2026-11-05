@@ -2,16 +2,11 @@
 
 from datetime import datetime, timezone
 from enum import Enum
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
-
-
-class Status(str, Enum):
-    PENDING = "pendente"
-    IN_PROGRESS = "em andamento"
-    COMPLETED = "concluida"
+from app.domain.task import Status
 
 class TaskRecord(Base):
     __tablename__ = "tasks"
@@ -20,5 +15,5 @@ class TaskRecord(Base):
     titulo: Mapped[str] = mapped_column(String(255), nullable=False)
     descricao: Mapped[str] = mapped_column(String(255), nullable=False)
     data_criacao: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    status: Mapped[Status] = mapped_column(String(50), default=Status.PENDING, nullable=False)
+    status: Mapped[Status] = mapped_column(Enum(Status), default=Status.PENDING, nullable=False)
     id_usuario: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)

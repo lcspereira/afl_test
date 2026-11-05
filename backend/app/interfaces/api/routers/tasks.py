@@ -83,7 +83,7 @@ async def list_tasks(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     """Lista todas as tarefas do usuário atual."""
-    tasks = await service.list_tasks_by_user(id_usuario=current_user.id)
+    tasks = await service.list_tasks(id_usuario=current_user.id)
     return [_task_response(task) for task in tasks]
 
 

@@ -135,7 +135,7 @@ class TaskService:
         await self._tasks.remove(task.id)
         return task
 
-    async def list_tasks_by_user(self, id_usuario: int) -> list[TaskRecord]:
+    async def list_tasks(self, id_usuario: int) -> list[TaskRecord]:
         """Lista todas as tarefas de um usuário específico.
 
         Args:
