@@ -1,6 +1,6 @@
 """Serviço de aplicação para gerenciamento de tarefas."""
 
-from app.infrastructure.database.models.task import Status, TaskRecord
+from app.domain.task import Status, Task, TaskCreate, TaskUpdate
 from app.infrastructure.database.repositories.task import (
     SqlAlchemyTaskRepository,
 )
@@ -16,7 +16,7 @@ class TaskService:
         descricao: str,
         id_usuario: int,
         status: Status = Status.PENDING,
-    ) -> TaskRecord:
+    ) -> Task:
         """Cria uma nova tarefa para o usuário especificado.
 
         Args:
@@ -25,7 +25,7 @@ class TaskService:
             id_usuario (int): O ID do usuário que está criando a tarefa.
 
         Returns:
-            TaskRecord: A tarefa criada.
+            Task: A tarefa criada.
 
         Raises:
             ValueError: Se o título ou a descrição estiverem vazios.
@@ -34,7 +34,7 @@ class TaskService:
             raise ValueError("Título não pode estar vazio")
         if descricao is None or not descricao.strip():
             raise ValueError("Descrição não pode estar vazia")
-        new_task = TaskRecord(
+        new_task = TaskCreate(
             titulo=titulo,
             descricao=descricao,
             id_usuario=id_usuario,
@@ -42,7 +42,7 @@ class TaskService:
         )
         return await self._tasks.add(new_task)
 
-    async def get_task(self, task_id: int, id_usuario: int) -> TaskRecord:
+    async def get_task(self, task_id: int, id_usuario: int) -> Task:
         """Obtém uma tarefa específica para o usuário especificado.
 
         Args:
@@ -50,7 +50,7 @@ class TaskService:
             id_usuario (int): O ID do usuário que está solicitando a tarefa.
 
         Returns:
-            TaskRecord: A tarefa solicitada.
+            Task: A tarefa solicitada.
 
         Raises:
             ValueError: Se a tarefa não for encontrada ou não pertencer
@@ -68,18 +68,18 @@ class TaskService:
         descricao: str | None,
         status: Status | None,
         id_usuario: int,
-    ) -> TaskRecord:
+    ) -> Task:
         """Atualiza uma tarefa existente para o usuário especificado.
 
         Args:
             task_id (int): O ID da tarefa a ser atualizada.
-            titulo (str): O novo título da tarefa.
-            descricao (str): A nova descrição da tarefa.
-            status (Status): O novo status da tarefa.
+            titulo (str | None): O novo título da tarefa.
+            descricao (str | None): A nova descrição da tarefa.
+            status (Status | None): O novo status da tarefa.
             id_usuario (int): O ID do usuário que está atualizando a tarefa.
 
         Returns:
-            TaskRecord: A tarefa atualizada.
+            Task: A tarefa atualizada.
 
         Raises:
             ValueError: Se o título ou a descrição estiverem vazios, se o
@@ -100,7 +100,7 @@ class TaskService:
         if current_task.id_usuario != id_usuario:
             raise PermissionError("Não autorizado a atualizar esta tarefa")
 
-        current_task = TaskRecord(
+        current_task = Task(
             id=current_task.id,
             titulo=titulo if titulo is not None else current_task.titulo,
             descricao=descricao
@@ -110,10 +110,13 @@ class TaskService:
             id_usuario=current_task.id_usuario,
             data_criacao=current_task.data_criacao,
         )
-        await self._tasks.update(current_task)
-        return current_task
+        return await self._tasks.update(task_id, TaskUpdate(
+            titulo=titulo,
+            descricao=descricao,
+            status=status
+        ), id_usuario) 
 
-    async def delete_task(self, task_id: int, id_usuario: int) -> TaskRecord:
+    async def delete_task(self, task_id: int, id_usuario: int) -> Task:
         """Exclui uma tarefa existente para o usuário especificado.
 
         Args:
@@ -122,6 +125,10 @@ class TaskService:
 
         Raises:
             ValueError: Se a tarefa não for encontrada.
+        Returns:
+            Task: A tarefa excluída.
+        Raises:
+            PermissionError: Se o usuário não estiver autorizado a excluir a tarefa.
             PermissionError: Se o usuário não estiver autorizado a deletar
                 a tarefa.
         """
@@ -135,13 +142,13 @@ class TaskService:
         await self._tasks.remove(task.id)
         return task
 
-    async def list_tasks_by_user(self, id_usuario: int) -> list[TaskRecord]:
+    async def list_tasks(self, id_usuario: int) -> list[Task]:
         """Lista todas as tarefas de um usuário específico.
 
         Args:
             id_usuario (int): O ID do usuário cujas tarefas serão listadas.
 
         Returns:
-            list[TaskRecord]: Uma lista de tarefas pertencentes ao usuário.
+            list[Task]: Uma lista de tarefas pertencentes ao usuário.
         """
         return await self._tasks.list_by_user_id(id_usuario)

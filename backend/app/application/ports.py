@@ -1,6 +1,7 @@
 """Portas: contratos que a aplicação exige da infraestrutura."""
 
 from typing import Protocol
+from app.domain.task import Status, Task
 
 from app.domain.tokens import IssuedRefreshToken, RefreshTokenClaims
 
@@ -45,18 +46,18 @@ class TokenService(Protocol):
 class TaskCrud(Protocol):
     """Contrato para operações de persistência de tarefas."""
 
-    async def create_task(self, titulo: str, descricao: str, id_usuario: int) -> int:
+    async def create_task(self, titulo: str, descricao: str, id_usuario: int, status: Status = Status.PENDING) -> Task:
         """Cria uma nova tarefa e retorna seu identificador."""
 
-    async def get_task(self, task_id: int, id_usuario: int) -> dict:
+    async def get_task(self, task_id: int, id_usuario: int) -> Task:
         """Retorna os dados de uma tarefa pelo seu identificador."""
 
-    async def update_task(self, task_id: int, titulo: str, descricao: str, status: str, id_usuario: int) -> None:
+    async def update_task(self, task_id: int, titulo: str | None, descricao: str | None, status: Status | None, id_usuario: int) -> Task:
         """Atualiza os dados de uma tarefa existente."""
 
-    async def delete_task(self, task_id: int, id_usuario: int) -> None:
+    async def delete_task(self, task_id: int, id_usuario: int) -> Task:
         """Remove uma tarefa pelo seu identificador."""
 
-    async def list_tasks(self, id_usuario: int) -> list[dict]:
+    async def list_tasks(self, id_usuario: int) -> list[Task]:
         """Retorna a lista de todas as tarefas de um usuário específico."""
 

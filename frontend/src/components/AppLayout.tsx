@@ -10,13 +10,14 @@ import Typography from '@mui/material/Typography'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, Outlet } from 'react-router-dom'
-import { ApiError, clearAccessToken, getAccessToken } from '../services/apiClient'
+import { useNavigate, Outlet } from 'react-router-dom'
+import { ApiError, clearAccessToken } from '../services/apiClient'
 import {
   getCurrentUser,
   logout,
 } from '../services/authtenticationService'
 import type { UserResponse } from '../types/auth'
+import { useLocation } from 'react-router-dom'
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Ocorreu um erro inesperado.'
@@ -31,10 +32,6 @@ export function AppLayout() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      return
-    }
-
     let active = true
     getCurrentUser()
       .then((currentUser) => {
@@ -44,15 +41,15 @@ export function AppLayout() {
         }
       })
       .catch((requestError: unknown) => {
-        if (!active) {
-          return
-        }
+        if (!active) return
+
+        setUser(null)
+
         if (requestError instanceof ApiError && requestError.status === 401) {
-          clearAccessToken()
-          setUser(null)
-          return
+          setAuthError(null)
+        } else {
+          setAuthError(errorMessage(requestError))
         }
-        setAuthError(errorMessage(requestError))
       })
 
     return () => {

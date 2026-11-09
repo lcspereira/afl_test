@@ -92,11 +92,11 @@ async def test_list_tasks_scoped_by_user(db_session):
     task2.id_usuario = user2.id
     await service.create_task(titulo=task1.titulo, descricao=task1.descricao, id_usuario=task1.id_usuario)
     await service.create_task(titulo=task2.titulo, descricao=task2.descricao, id_usuario=task2.id_usuario)
-    tasks = await service.list_tasks_by_user(id_usuario=task1.id_usuario)
+    tasks = await service.list_tasks(id_usuario=task1.id_usuario)
     assert len(tasks) == 1
     assert any(t.id_usuario == task1.id_usuario for t in tasks)
     assert all(t.id_usuario != task2.id_usuario for t in tasks)
-    tasks = await service.list_tasks_by_user(id_usuario=task2.id_usuario)
+    tasks = await service.list_tasks(id_usuario=task2.id_usuario)
     assert len(tasks) == 1
     assert any(t.id_usuario == task2.id_usuario for t in tasks)
     assert all(t.id_usuario != task1.id_usuario for t in tasks)
