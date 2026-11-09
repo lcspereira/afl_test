@@ -10,10 +10,6 @@ export class ApiError extends Error {
   }
 }
 
-export function getAccessToken(): string | null {
-  return null
-}
-
 export function clearAccessToken(): void {
   if (typeof window !== 'undefined') {
     window.location.reload()
